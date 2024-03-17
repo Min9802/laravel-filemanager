@@ -18,6 +18,8 @@
         "php": "^8.0",
         "ext-zip": "*",
         "ext-json": "*",
+        "ext-fileinfo": "*",
+        "ext-exif": "*",
         "laravel/framework": "^9.0|^10.0",
         "league/flysystem": "^3.0",
         "intervention/image": "^2.7",
