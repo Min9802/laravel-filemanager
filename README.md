@@ -12,10 +12,11 @@
 - [ACL](./docs/acl.md)
 - [Events](./docs/events.md)
 - [Update](./docs/update.md)
+- [Examples](https://github.com/Min9802/laravel-filemanager/tree/main/examples)
 
 ## Features
 
-- Frontend on Reactjs - [@min98/file-manager](https://github.com/min98/filemanager)
+- Frontend on Reactjs - [@min98/filemanager-react](https://github.com/min9802/filemanager-React)
 - Work with the file system is organized by the standard means Laravel Flysystem:
   - Local, FTP, S3, Dropbox ...
   - The ability to work only with the selected disks
