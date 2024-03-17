@@ -6,7 +6,7 @@
 composer require min98/laravel-filemanager
 ```
 
-1.  add service provider to config/app.php (for the Laravel 5.5 and higher skip this step):
+2.  add service provider to config/app.php (for the Laravel 5.5 and higher skip this step):
 
 ```php
 Min\FileManager\FileManagerServiceProvider::class,
@@ -18,7 +18,11 @@ Min\FileManager\FileManagerServiceProvider::class,
 php artisan vendor:publish --tag=fm-config
 ```
 
-4. You can install npm package directly and use it in your vue application - more information about it -
+4. Migrate tabales
+   ```bash
+   php artisan migrate
+   ```
+5. You can install npm package directly and use it in your vue application - more information about it -
    [@min98/filemanager](https://github.com/Min9802/ui)
 
 > OR
