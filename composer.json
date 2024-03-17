@@ -11,7 +11,7 @@
         "email": "hotro.minservices@gmail.com",
         "role": "Developer"
     }],
-    "homepage": "https://github.com/min9802",
+    "homepage": "https://github.com/min9802/laravel-filemanager",
     "license": "MIT",
     "minimum-stability": "dev",
     "require": {
