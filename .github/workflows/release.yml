@@ -11,7 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
+
+      - name: Create annotated tag
+        run: git tag -a v${{ github.run_number }} -m "Release version v${{ github.run_number }}"
+        if: github.ref == 'refs/heads/main' # Ensure the tag is created only for the main branch
+
+      - name: Push tag
+        if: github.ref == 'refs/heads/main' # Ensure the tag is pushed only for the main branch
+        run: git push origin --tags
 
       - name: Create Release
         id: create_release
@@ -19,7 +27,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
         with:
-          tag_name: ${{ github.sha }}
-          release_name: Release ${{ github.sha }}
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
           draft: false
           prerelease: false
