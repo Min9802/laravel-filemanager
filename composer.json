@@ -13,7 +13,7 @@
     }],
     "homepage": "https://github.com/min9802/laravel-filemanager",
     "license": "MIT",
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
         "php": "^8.0",
@@ -25,7 +25,7 @@
         "league/flysystem": "^3.0",
         "intervention/image": "^2.7",
         "intervention/imagecache": "^2.6",
-        "guzzlehttp/guzzle": "7.5.x-dev"
+        "guzzlehttp/guzzle": "7.8.1"
     },
     "autoload": {
         "psr-4": {
