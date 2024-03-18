@@ -1,27 +1,24 @@
-name: Release
+name: Create release
+
 on:
   push:
-    branches:
-      - main
+    tags:
+      - v*
+
+permissions:
+  contents: write
 
 jobs:
   release:
-    name: Release
-    runs-on: ubuntu-latest
+    name: Release pushed tag
+    runs-on: ubuntu-22.04
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Automatic GitHub Release
-        uses: justincy/github-action-npm-release@2.0.1
-        id: release
-      - uses: actions/setup-node@v1
-        if: steps.release.outputs.released == 'true'
-        with:
-          registry-url: "https://npm.pkg.github.com"
-      - name: Publish
-        if: steps.release.outputs.released == 'true'
-        run: npm publish
+      - name: Create release
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GIT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+          tag: ${{ github.ref_name }}
+        run: |
+          gh release create "$tag" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
+              --generate-notes
