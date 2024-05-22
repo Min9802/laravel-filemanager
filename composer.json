@@ -1,0 +1,42 @@
+{
+    "name": "min98/laravel-filemanager",
+    "description": "File manager for Laravel",
+    "keywords": [
+        "laravel",
+        "file",
+        "manager"
+    ],
+    "authors": [{
+        "name": "Min",
+        "email": "hotro.minservices@gmail.com",
+        "role": "Developer"
+    }],
+    "homepage": "https://github.com/min9802/laravel-filemanager",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require": {
+        "php": "^8.0",
+        "ext-zip": "*",
+        "ext-json": "*",
+        "ext-fileinfo": "*",
+        "ext-exif": "*",
+        "laravel/framework": "^9.0|^10.0",
+        "league/flysystem": "^3.0",
+        "intervention/image": "^2.7",
+        "intervention/imagecache": "^2.6",
+        "guzzlehttp/guzzle": "7.8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Min\\FileManager\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Min\\FileManager\\FileManagerServiceProvider"
+            ]
+        }
+    }
+}
