@@ -16,16 +16,15 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": "^8.0",
+        "php": "^8.1",
         "ext-zip": "*",
         "ext-json": "*",
         "ext-fileinfo": "*",
         "ext-exif": "*",
-        "laravel/framework": "^9.0|^10.0",
+        "laravel/framework": "^9.0|^10.0|^11.0",
         "league/flysystem": "^3.0",
-        "intervention/image": "^2.7",
-        "intervention/imagecache": "^2.6",
-        "guzzlehttp/guzzle": "7.8.1"
+        "guzzlehttp/guzzle": "7.8.1",
+        "intervention/image-laravel": "^1.2.0"
     },
     "autoload": {
         "psr-4": {

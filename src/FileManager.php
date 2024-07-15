@@ -2,20 +2,20 @@
 
 namespace Min\FileManager;
 
-use Min\FileManager\Events\Deleted;
-use Min\FileManager\Services\ConfigService\ConfigRepository;
-use Min\FileManager\Services\TransferService\TransferFactory;
-use Min\FileManager\Traits\CheckTrait;
-use Min\FileManager\Traits\ContentTrait;
-use Min\FileManager\Traits\PathTrait;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\Laravel\Facades\Image;
 use League\Flysystem\FilesystemException;
+use Min\FileManager\Events\Deleted;
+use Min\FileManager\Services\ConfigService\ConfigRepository;
+use Min\FileManager\Services\TransferService\TransferFactory;
+use Min\FileManager\Traits\CheckTrait;
+use Min\FileManager\Traits\ContentTrait;
+use Min\FileManager\Traits\PathTrait;
 use Min\FileManager\Traits\SystemDataTrait;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -48,20 +48,20 @@ class FileManager
         if (!config()->has('file-manager')) {
             return [
                 'result' => [
-                    'status'  => 'danger',
+                    'status' => 'danger',
                     'message' => 'noConfig',
                 ],
             ];
         }
 
         $config = [
-            'acl'           => $this->configRepository->getAcl(),
-            'leftDisk'      => $this->configRepository->getLeftDisk(),
-            'rightDisk'     => $this->configRepository->getRightDisk(),
-            'leftPath'      => $this->configRepository->getLeftPath(),
-            'rightPath'     => $this->configRepository->getRightPath(),
+            'acl' => $this->configRepository->getAcl(),
+            'leftDisk' => $this->configRepository->getLeftDisk(),
+            'rightDisk' => $this->configRepository->getRightDisk(),
+            'leftPath' => $this->configRepository->getLeftPath(),
+            'rightPath' => $this->configRepository->getRightPath(),
             'windowsConfig' => $this->configRepository->getWindowsConfig(),
-            'hiddenFiles'   => $this->configRepository->getHiddenFiles(),
+            'hiddenFiles' => $this->configRepository->getHiddenFiles(),
         ];
 
         // disk list
@@ -79,7 +79,7 @@ class FileManager
 
         return [
             'result' => [
-                'status'  => 'success',
+                'status' => 'success',
                 'message' => null,
             ],
             'config' => $config,
@@ -103,12 +103,12 @@ class FileManager
             $this->SaveToDB($file);
         }
         return [
-            'result'      => [
-                'status'  => 'success',
+            'result' => [
+                'status' => 'success',
                 'message' => null,
             ],
             'directories' => $content['directories'],
-            'files'       => $content['files'],
+            'files' => $content['files'],
         ];
     }
 
@@ -126,8 +126,8 @@ class FileManager
         $directories = $this->getDirectoriesTree($disk, $path);
 
         return [
-            'result'      => [
-                'status'  => 'success',
+            'result' => [
+                'status' => 'success',
                 'message' => null,
             ],
             'directories' => $directories,
@@ -199,7 +199,7 @@ class FileManager
         if ($fileNotUploaded) {
             return [
                 'result' => [
-                    'status'  => 'warning',
+                    'status' => 'warning',
                     'message' => 'notAllUploaded',
                 ],
 
@@ -208,10 +208,10 @@ class FileManager
 
         return [
             'result' => [
-                'status'  => 'success',
+                'status' => 'success',
                 'message' => 'uploaded',
             ],
-            'files' => $fileInfo
+            'files' => $fileInfo,
         ];
     }
 
@@ -245,7 +245,7 @@ class FileManager
 
         return [
             'result' => [
-                'status'  => 'success',
+                'status' => 'success',
                 'message' => 'deleted',
             ],
         ];
@@ -290,23 +290,23 @@ class FileManager
             $rename = Storage::disk($disk)->move($oldName, $newName);
             if ($rename) {
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'renamed',
-                    'code' => 200
+                    'code' => 200,
                 ];
             } else {
                 return [
-                    'status'  => 'error',
+                    'status' => 'error',
                     'message' => 'not Renamed',
-                    'code' => 500
+                    'code' => 500,
                 ];
             }
         } catch (\Exception $e) {
             Log::error('Message :' . $e->getMessage() . '--line: ' . $e->getLine());
             return [
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => 'not Renamed',
-                'code' => 500
+                'code' => 500,
             ];
         }
     }
@@ -342,22 +342,15 @@ class FileManager
      */
     public function thumbnails($disk, $path): mixed
     {
-        if ($this->configRepository->getCache()) {
-            $thumbnail = Image::cache(function ($image) use ($disk, $path) {
-                $image->make(Storage::disk($disk)->get($path))->fit(80);
-            }, $this->configRepository->getCache());
+        return response()->make(
+            Image::read(
+                Storage::disk($disk)->get($path))
+                ->coverDown(80, 80)
+                ->encode(),
+            200,
+            ['Content-Type' => Storage::disk($disk)->mimeType($path)]
+        );
 
-            // output
-            return response()->make(
-                $thumbnail,
-                200,
-                ['Content-Type' => Storage::disk($disk)->mimeType($path)]
-            );
-        }
-
-        $thumbnail = Image::make(Storage::disk($disk)->get($path))->fit(80);
-
-        return $thumbnail->response();
     }
 
     /**
@@ -370,9 +363,12 @@ class FileManager
      */
     public function preview($disk, $path): mixed
     {
-        $preview = Image::make(Storage::disk($disk)->get($path));
+        return response()->make(
+            Image::read(Storage::disk($disk)->get($path))->encode(),
+            200,
+            ['Content-Type' => Storage::disk($disk)->mimeType($path)]
+        );
 
-        return $preview->response();
     }
 
     /**
@@ -385,22 +381,49 @@ class FileManager
      */
     public function url($disk, $path): array
     {
-        if ($disk == "nextcloud") {
-            return [
-                'result' => [
-                    'status'  => 'success',
-                    'message' => null,
-                ],
-                'url'    => Storage::disk($disk)->publicUrl($path),
-            ];
+        switch ($disk) {
+            case 'nextcloud':
+                return [
+                    'result' => [
+                        'status' => 'success',
+                        'message' => null,
+                    ],
+                    'url' => Storage::disk($disk)->publicUrl($path),
+                ];
+                break;
+            case 's3':
+                return [
+                    'result' => [
+                        'status' => 'success',
+                        'message' => null,
+                    ],
+                    'url' => Storage::disk($disk)->temporaryUrl(
+                        $path, now()->addMonths(5)
+                    ),
+                ];
+                break;
+            case 'minio':
+                return [
+                    'result' => [
+                        'status' => 'success',
+                        'message' => null,
+                    ],
+                    'url' => Storage::disk($disk)->temporaryUrl(
+                        $path, now()->addMonths(5)
+                    ),
+                ];
+                break;
+            default:
+                return [
+                    'result' => [
+                        'status' => 'success',
+                        'message' => null,
+                    ],
+                    'url' => Storage::disk($disk)->url($path),
+                ];
+
+                break;
         }
-        return [
-            'result' => [
-                'status'  => 'success',
-                'message' => null,
-            ],
-            'url'    => Storage::disk($disk)->url($path),
-        ];
     }
     /**
      * get information
@@ -413,10 +436,10 @@ class FileManager
         $info = $this->GetInfo($disk, $path);
         return [
             'result' => [
-                'status'  => 'success',
+                'status' => 'success',
                 'message' => null,
             ],
-            'content'    => $info,
+            'content' => $info,
         ];
     }
 
@@ -436,7 +459,7 @@ class FileManager
         if (Storage::disk($disk)->exists($directoryName)) {
             return [
                 'result' => [
-                    'status'  => 'warning',
+                    'status' => 'warning',
                     'message' => 'dirExist',
                 ],
             ];
@@ -449,16 +472,16 @@ class FileManager
         );
 
         // add directory properties for the tree module
-        $tree          = $directoryProperties;
+        $tree = $directoryProperties;
         $tree['props'] = ['hasSubdirectories' => false];
 
         return [
-            'result'    => [
-                'status'  => 'success',
+            'result' => [
+                'status' => 'success',
                 'message' => 'dirCreated',
             ],
             'directory' => $directoryProperties,
-            'tree'      => [$tree],
+            'tree' => [$tree],
         ];
     }
     public function directoryExists($disk, $directoryName)
@@ -485,7 +508,7 @@ class FileManager
         if (Storage::disk($disk)->exists($path)) {
             return [
                 'result' => [
-                    'status'  => 'warning',
+                    'status' => 'warning',
                     'message' => 'fileExist',
                 ],
             ];
@@ -496,10 +519,10 @@ class FileManager
 
         return [
             'result' => [
-                'status'  => 'success',
+                'status' => 'success',
                 'message' => 'fileCreated',
             ],
-            'file'   => $fileProperties,
+            'file' => $fileProperties,
         ];
     }
 
@@ -520,15 +543,15 @@ class FileManager
             $file->getClientOriginalName()
         );
 
-        $filePath       = $this->newPath($path, $file->getClientOriginalName());
+        $filePath = $this->newPath($path, $file->getClientOriginalName());
         $fileProperties = $this->fileProperties($disk, $filePath);
 
         return [
             'result' => [
-                'status'  => 'success',
+                'status' => 'success',
                 'message' => 'fileUpdated',
             ],
-            'file'   => $fileProperties,
+            'file' => $fileProperties,
         ];
     }
 
