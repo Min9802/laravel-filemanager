@@ -398,18 +398,7 @@ class FileManager
                         'message' => null,
                     ],
                     'url' => Storage::disk($disk)->temporaryUrl(
-                        $path, now()->addMonths(5)
-                    ),
-                ];
-                break;
-            case 'minio':
-                return [
-                    'result' => [
-                        'status' => 'success',
-                        'message' => null,
-                    ],
-                    'url' => Storage::disk($disk)->temporaryUrl(
-                        $path, now()->addMonths(5)
+                        $path, now()->addWeek(1)
                     ),
                 ];
                 break;
